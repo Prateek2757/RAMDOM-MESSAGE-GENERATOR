@@ -7,8 +7,8 @@ import UserModel from "@/model/User";
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      id: "credentails",
-      name: "credentails",
+      id: "credentials",
+      name: "Credentails",
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
@@ -36,37 +36,45 @@ export const authOptions: NextAuthOptions = {
             credentails.password,
             user.password
           );
-          if(passwordChecking){
-            return user
-          }else{
-            throw new Error("Incorrect Password")
+          if (passwordChecking) {
+            return user;
+          } else {
+            throw new Error("Incorrect Password");
           }
-
         } catch (err: any) {
           throw new Error(err);
         }
       },
     }),
   ],
-  callbacks:{
-    async jwt({token,user}){
-          if(user){
-            token._id = user._id ?.toString()
-            token.isVerified = user.isVerified
-          }
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token._id = user._id?.toString();
+        token.isVerified = user.isVerified;
+        token.isAcceptingMessage = user.isAcceptingMessage;
+        token.username = user.username;
+      }
 
-         return token
+      return token;
     },
-    async session ({session,token}){
-        return session
-    }
+
+    async session({ session, token }) {
+      if (token) {
+        session.user._id = token._id;
+        session.user.isVerified = token.isVerified;
+        session.user.isAcceptingMessage = token.isAcceptingMessage;
+        session.user.username = token.username;
+      }
+      return session;
+    },
   },
-  pages : {
-    signIn : '/sign-in'
+  pages: {
+    signIn:"/signin",
+    error: "/error",
   },
-  session : {
-    strategy : "jwt"
+  session: {
+    strategy: "jwt",
   },
-  secret : process.env.NEXTAUTH_SECRET
-  
+  secret: process.env.NEXTAUTH_SECRET,
 };
