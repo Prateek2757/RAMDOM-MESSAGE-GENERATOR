@@ -14,12 +14,12 @@ export async function middleware(request: NextRequest) {
 
   if (!isPublicPath && !token) {
     // If trying to access private pages without a token, redirect to login
-    return NextResponse.redirect(new URL("/signin", request.nextUrl));
+    return NextResponse.redirect(new URL("", request.nextUrl));
   }
 
   return NextResponse.next(); // Continue if no issues
 }
 
 export const config = {
-  matcher: ["/signin", "/signup", "/", "/dashboard/:path*", "/verify/:path*"],
+  matcher: ["/signin", "/signup",  "/dashboard/:path*", "/verify/:path*"],
 };

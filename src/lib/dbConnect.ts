@@ -1,23 +1,28 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-type ConnectionObject = {
-  isConnected?: number;
-};
+export async function connect() {
+    const mongoUri = process.env.MONGO_URI;
 
-const connection: ConnectionObject = {};
+    if (!mongoUri) {
+        console.error("MongoDB URI is missing. Please set MONGO_URI in your .env.local file.");
+        process.exit(1);
+    }
 
-export async function dbConnect(): Promise<void> {
-  if (connection.isConnected) {
-    console.log("Already Connected To Db");
-    return;
-  }
+    try {
+        await mongoose.connect(mongoUri);
+        const connection = mongoose.connection;
 
-  try {
-    const db = await mongoose.connect(process.env.MONGODB_URI || "", {});
-    connection.isConnected = db.connections[0].readyState;
-    console.log("Database connected sucessfully");
-  } catch (error) {
-    console.log("not Connceted", error);
-    process.exit(1);
-  }
+        connection.on('connected', () => {
+            console.log('MongoDB connected successfully');
+        });
+
+        connection.on('error', (err) => {
+            console.log('MongoDB connection error. Please make sure MongoDB is running. ' + err);
+            process.exit();
+        });
+
+    } catch (error) {
+        console.error('Something went wrong during MongoDB connection.');
+        console.error(error);
+    }
 }
